@@ -1,0 +1,6 @@
+.zig-cache/
+zig-out/
+deps/SDL/build/
+deps/SDL/out/
+deps/SDL_image/build/
+deps/SDL_image/out/
