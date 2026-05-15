@@ -36,8 +36,7 @@
             .path = "deps/SDL",
         },
         .zsdl3 = .{
-            .url = "git+https://github.com/felixuxx/zsdl3.git#0d580a415e627b9c2dc85d944ed9e2a4e7d566a2",
-            .hash = "zsdl3-0.0.0-l0pNpOzCBQC787su6DZEZd3CV67QK-_mCt5qOD1iewXz",
+            .path = "deps/zsdl3",
         },
     },
     // Specifies the set of files and directories that are included in this package.
