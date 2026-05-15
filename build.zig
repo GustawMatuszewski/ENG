@@ -28,10 +28,17 @@ pub fn build(b: *std.Build) void {
     // to our consumers. We must give it a name because a Zig package can expose
     // multiple modules and consumers will need to be able to specify which
     // module they want to access.
+    const vulkan_zig = b.dependency("vulkan_zig", .{});
+    const vk_gen = vulkan_zig.artifact("vulkan-zig-generator");
+    const vk_generate_cmd = b.addRunArtifact(vk_gen);
+    vk_generate_cmd.addArg(b.pathFromRoot("deps/vulkan-zig/vk.xml"));
+    const vulkan_module = vk_generate_cmd.addOutputFileArg("vk.zig");
+
     const mod = b.addModule("zigVulkan", .{
         .link_libc = true,
         .imports = &.{
             .{ .name = "zsdl3", .module = b.dependency("zsdl3", .{}).module("zsdl3") },
+                            .{ .name = "vulkan", .module = b.createModule(.{ .root_source_file = vulkan_module }) },
         },
         // The root source file is the "entry point" of this module. Users of
         // this module will only be able to access public declarations contained
@@ -48,12 +55,6 @@ pub fn build(b: *std.Build) void {
     mod.addLibraryPath(b.path("deps/SDL/out/lib64"));
     mod.addLibraryPath(b.path("deps/SDL_image/out/lib64"));
 
-    const vulkan_zig = b.dependency("vulkan_zig", .{});
-    const vk_gen = vulkan_zig.artifact("vulkan-zig-generator");
-    const vk_generate_cmd = b.addRunArtifact(vk_gen);
-    vk_generate_cmd.addArg(b.pathFromRoot("deps/vulkan-zig/vk.xml"));
-    const vulkan_module = vk_generate_cmd.addOutputFileArg("vk.zig");
-    mod.addImport("vulkan", b.createModule(.{ .root_source_file = vulkan_module }));
 
     // Here we define an executable. An executable needs to have a root module
     // which needs to expose a `main` function. While we could add a main function
@@ -94,6 +95,7 @@ pub fn build(b: *std.Build) void {
                 // importing modules from different packages).
                 .{ .name = "zigVulkan", .module = mod },
                 .{ .name = "zsdl3", .module = b.dependency("zsdl3", .{}).module("zsdl3") },
+                            .{ .name = "vulkan", .module = b.createModule(.{ .root_source_file = vulkan_module }) },
             },
         }),
     });
