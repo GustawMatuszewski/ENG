@@ -1,12 +1,14 @@
 const std = @import("std");
 
 const app = @import("app.zig");
-
+const eng = @import("eng.zig");
 pub fn main() !void {
-    std.debug.print("[APP] - App is starting...\n", .{});
+    eng.printWarning("APP", "ENG is starting...", .{});
+
     app.run() catch |err| {
-        std.debug.print("[APP] ERROR - unexpected crash occurred: {any}\n", .{err});
+        eng.printError("APP", "Unexpected crash occured ({any}) \n", .{err});
         return err;
     };
-    std.debug.print("[APP] - App is closed...\n", .{});
+
+    eng.printSuccess("APP", "App has closed succesfully", .{});
 }
