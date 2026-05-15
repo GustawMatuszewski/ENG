@@ -38,6 +38,9 @@
         .zsdl3 = .{
             .path = "deps/zsdl3",
         },
+        .vulkan_zig = .{
+            .path = "deps/vulkan-zig",
+        },
     },
     // Specifies the set of files and directories that are included in this package.
     // Only files and directories listed here are included in the `hash` that

@@ -47,6 +47,14 @@ pub fn build(b: *std.Build) void {
     mod.linkSystemLibrary("SDL3", .{});
     mod.addLibraryPath(b.path("deps/SDL/out/lib64"));
     mod.addLibraryPath(b.path("deps/SDL_image/out/lib64"));
+
+    const vulkan_zig = b.dependency("vulkan_zig", .{});
+    const vk_gen = vulkan_zig.artifact("vulkan-zig-generator");
+    const vk_generate_cmd = b.addRunArtifact(vk_gen);
+    vk_generate_cmd.addArg(b.pathFromRoot("deps/vulkan-zig/vk.xml"));
+    const vulkan_module = vk_generate_cmd.addOutputFileArg("vk.zig");
+    mod.addImport("vulkan", b.createModule(.{ .root_source_file = vulkan_module }));
+
     // Here we define an executable. An executable needs to have a root module
     // which needs to expose a `main` function. While we could add a main function
     // to the module defined above, it's sometimes preferable to split business
