@@ -33,8 +33,8 @@ sudo apt install cmake gcc vulkan-tools libvulkan-dev
 ## Clone
 
 ```bash
-git clone --recurse-submodules https://github.com/yourusername/zigVulkan.git
-cd zigVulkan
+git clone --recurse-submodules https://github.com/GustawMatuszewski/ENG
+cd ENG
 ```
 
 If you already cloned without `--recurse-submodules`:
