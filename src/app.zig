@@ -8,9 +8,12 @@ const vulkan = @import("vulkan.zig");
 pub fn run() !void {
     try window.init();
     defer zsdl3.quit();
-    try vulkan.renderer();
+
     const mainWindow = window.create("nygerion", 800, 800) orelse return error.SDLWindowFailed;
     defer zsdl3.destroyWindow(mainWindow);
+
+    try vulkan.init();
+    try vulkan.renderer();
 
     var running = true;
     while (running) {

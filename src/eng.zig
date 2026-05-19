@@ -1,5 +1,8 @@
 const std = @import("std");
 
+pub const appName = "ENG";
+pub const appVersion: i32 = 0;
+
 pub fn printSuccess(section: []const u8, comptime fmt: []const u8, args: anytype) void {
     const message = std.fmt.allocPrint(std.heap.page_allocator, fmt, args) catch fmt;
     defer std.heap.page_allocator.free(message);
