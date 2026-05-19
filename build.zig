@@ -34,7 +34,7 @@ pub fn build(b: *std.Build) void {
     vk_generate_cmd.addArg(b.pathFromRoot("deps/vulkan-zig/vk.xml"));
     const vulkan_module = vk_generate_cmd.addOutputFileArg("vk.zig");
 
-    const mod = b.addModule("zigVulkan", .{
+    const mod = b.addModule("zig_vulkan", .{
         .link_libc = true,
         .imports = &.{
             .{ .name = "zsdl3", .module = b.dependency("zsdl3", .{}).module("zsdl3") },
@@ -73,7 +73,7 @@ pub fn build(b: *std.Build) void {
     // If neither case applies to you, feel free to delete the declaration you
     // don't need and to put everything under a single module.
     const exe = b.addExecutable(.{
-        .name = "zigVulkan",
+        .name = "zig_vulkan",
         .root_module = b.createModule(.{
             // b.createModule defines a new module just like b.addModule but,
             // unlike b.addModule, it does not expose the module to consumers of
@@ -93,7 +93,7 @@ pub fn build(b: *std.Build) void {
                 // repeated because you are allowed to rename your imports, which
                 // can be extremely useful in case of collisions (which can happen
                 // importing modules from different packages).
-                .{ .name = "zigVulkan", .module = mod },
+                .{ .name = "zig_vulkan", .module = mod },
                 .{ .name = "zsdl3", .module = b.dependency("zsdl3", .{}).module("zsdl3") },
                             .{ .name = "vulkan", .module = b.createModule(.{ .root_source_file = vulkan_module }) },
             },
