@@ -51,12 +51,23 @@ pub fn init(window: *zsdl3.SDL_Window, allocator: std.mem.Allocator) !void {
     const instance = try vkb.createInstance(&create_info, null);
     const vki = InstanceWrapper.load(instance, loader);
 
+    var selected: ?vk.PhysicalDevice = null;
     const physical_devices = try vki.enumeratePhysicalDevicesAlloc(instance, allocator);
     defer allocator.free(physical_devices);
 
     for (physical_devices) |device| {
         const props = vki.getPhysicalDeviceProperties(device);
         eng.print_success("VULKAN", "Physical device: {s}", .{props.device_name});
+        if (props.device_type == .discrete_gpu) {
+            selected = device;
+        }
+    }
+    if (selected) |dev| {
+        const props = vki.getPhysicalDeviceProperties(dev);
+        eng.print_success("VULKAN", "Selected: {s}", .{props.device_name});
+    } else {
+        eng.print_error("VULKAN", "No suitable physical device found", .{});
+        return error.NoSuitableDevice;
     }
 
     var surface: ?*anyopaque = null;
