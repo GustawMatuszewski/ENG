@@ -12,7 +12,7 @@ const DeviceWrapper = vk.DeviceWrapper;
 const Instance = vk.InstanceProxy;
 const Device = vk.DeviceProxy;
 
-pub fn init(window: *zsdl3.SDL_Window) !void {
+pub fn init(window: *zsdl3.SDL_Window, allocator: std.mem.Allocator) !void {
     eng.print_warning("VULKAN", "Trying to initialize vulkan...", .{});
     const proc_addr = zsdl3.vulkanGetVkGetInstanceProcAddr() orelse return error.VulkanLoaderNotFound;
     const loader: vk.PfnGetInstanceProcAddr = @ptrCast(proc_addr);
@@ -38,6 +38,7 @@ pub fn init(window: *zsdl3.SDL_Window) !void {
             }
         }
     }
+
     const create_info: vk.InstanceCreateInfo = .{
         .flags = .{},
         .p_application_info = &app_info,
@@ -49,7 +50,14 @@ pub fn init(window: *zsdl3.SDL_Window) !void {
 
     const instance = try vkb.createInstance(&create_info, null);
     const vki = InstanceWrapper.load(instance, loader);
-    _ = vki;
+
+    const physical_devices = try vki.enumeratePhysicalDevicesAlloc(instance, allocator);
+    defer allocator.free(physical_devices);
+
+    for (physical_devices) |device| {
+        const props = vki.getPhysicalDeviceProperties(device);
+        eng.print_success("VULKAN", "Physical device: {s}", .{props.device_name});
+    }
 
     var surface: ?*anyopaque = null;
     if (!zsdl3.vulkanCreateSurface(window, @ptrFromInt(@intFromEnum(instance)), null, &surface)) {

@@ -6,13 +6,15 @@ const window = @import("window.zig");
 const vulkan = @import("vulkan.zig");
 
 pub fn run() !void {
+    var gpa: std.heap.DebugAllocator(.{}) = .init;
+    const allocator = gpa.allocator();
     try window.init();
     defer zsdl3.quit();
 
     const mainWindow = try window.create("nygerion", 800, 800);
     //defer zsdl3.destroyWindow(mainWindow);
 
-    try vulkan.init(mainWindow);
+    try vulkan.init(mainWindow, allocator);
     try vulkan.renderer();
 
     var running = true;
@@ -31,4 +33,6 @@ pub fn run() !void {
             }
         }
     }
+    const bytes = try allocator.alloc(u8, 100);
+    defer allocator.free(bytes);
 }
