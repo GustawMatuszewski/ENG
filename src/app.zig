@@ -9,10 +9,10 @@ pub fn run() !void {
     try window.init();
     defer zsdl3.quit();
 
-    const mainWindow = window.create("nygerion", 800, 800) orelse return error.SDLWindowFailed;
-    defer zsdl3.destroyWindow(mainWindow);
+    const mainWindow = try window.create("nygerion", 800, 800);
+    //defer zsdl3.destroyWindow(mainWindow);
 
-    try vulkan.init();
+    try vulkan.init(mainWindow);
     try vulkan.renderer();
 
     var running = true;

@@ -12,11 +12,12 @@ pub fn init() !void {
     eng.print_success("WINDOW - SDL3", "Initialized sdl3", .{});
 }
 
-pub fn create(title: [*:0]const u8, width: i32, height: i32) ?*zsdl3.SDL_Window {
+pub fn create(title: [*:0]const u8, width: i32, height: i32) !*zsdl3.SDL_Window {
     const window = zsdl3.createWindow(title, width, height, zsdl3.SDL_WINDOW_VULKAN);
     if (window == null) {
         eng.print_error("WINDOW - SDL3", "Failed to create window '{s}' ({s})", .{ title, zsdl3.getError() orelse "unknown" });
+        return error.SDLWindowFailed;
     }
     eng.print_success("WINDOW - SDL3", "Window '{s}' created, w: {d}, h: {d}", .{ title, width, height });
-    return window;
+    return window.?;
 }
