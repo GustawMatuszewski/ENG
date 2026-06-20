@@ -1,4 +1,11 @@
+//This file is supposed to be a kind of library for the entire project.
+//Any function or external librabry that will be used thruout the project should land here.
+
 const std = @import("std");
+
+pub const sdl3 = @cImport({
+    @cInclude("SDL3/SDL.h");
+});
 
 pub const app_name = "ENG";
 pub const app_version: i32 = 0;

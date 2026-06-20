@@ -1,7 +1,6 @@
 const std = @import("std");
 
-const zsdl3 = @import("zsdl3");
-
+const eng = @import("eng.zig");
 const window = @import("window.zig");
 const vulkan = @import("vulkan.zig");
 
@@ -9,23 +8,23 @@ pub fn run() !void {
     var gpa: std.heap.DebugAllocator(.{}) = .init;
     const allocator = gpa.allocator();
     try window.init();
-    defer zsdl3.quit();
+    defer eng.sdl3.SDL_Quit();
 
     const mainWindow = try window.create("nygerion", 800, 800);
-    //defer zsdl3.destroyWindow(mainWindow);
+    defer eng.sdl3.SDL_DestroyWindow(mainWindow);
 
-    try vulkan.init(mainWindow, allocator);
-    try vulkan.renderer();
+    //try vulkan.init(mainWindow, allocator);
+    //try vulkan.renderer();
 
     var running = true;
     while (running) {
         // Handle events
-        var event: zsdl3.SDL_Event = undefined;
-        while (zsdl3.pollEvent(&event)) {
+        var event: eng.sdl3.SDL_Event = undefined;
+        while (eng.sdl3.SDL_PollEvent(&event)) {
             switch (event.type) {
-                zsdl3.SDL_EVENT_QUIT => running = false,
-                zsdl3.SDL_EVENT_KEY_DOWN => {
-                    if (event.key.scancode == zsdl3.SDL_SCANCODE_ESCAPE) {
+                eng.sdl3.SDL_EVENT_QUIT => running = false,
+                eng.sdl3.SDL_EVENT_KEY_DOWN => {
+                    if (event.key.scancode == eng.sdl3.SDL_SCANCODE_ESCAPE) {
                         running = false;
                     }
                 },
