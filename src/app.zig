@@ -8,23 +8,22 @@ pub fn run() !void {
     var gpa: std.heap.DebugAllocator(.{}) = .init;
     const allocator = gpa.allocator();
     try window.init();
-    defer eng.sdl3.SDL_Quit();
+    defer eng.c.SDL_Quit();
 
     const mainWindow = try window.create("nygerion", 800, 800);
-    defer eng.sdl3.SDL_DestroyWindow(mainWindow);
+    defer eng.c.SDL_DestroyWindow(mainWindow);
 
-    //try vulkan.init(mainWindow, allocator);
-    //try vulkan.renderer();
+    try vulkan.init(mainWindow, allocator);
+    try vulkan.renderer();
 
     var running = true;
     while (running) {
-        // Handle events
-        var event: eng.sdl3.SDL_Event = undefined;
-        while (eng.sdl3.SDL_PollEvent(&event)) {
+        var event: eng.c.SDL_Event = undefined;
+        while (eng.c.SDL_PollEvent(&event)) {
             switch (event.type) {
-                eng.sdl3.SDL_EVENT_QUIT => running = false,
-                eng.sdl3.SDL_EVENT_KEY_DOWN => {
-                    if (event.key.scancode == eng.sdl3.SDL_SCANCODE_ESCAPE) {
+                eng.c.SDL_EVENT_QUIT => running = false,
+                eng.c.SDL_EVENT_KEY_DOWN => {
+                    if (event.key.scancode == eng.c.SDL_SCANCODE_ESCAPE) {
                         running = false;
                     }
                 },

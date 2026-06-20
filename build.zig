@@ -4,17 +4,8 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const vulkan_zig = b.dependency("vulkan_zig", .{});
-    const vk_gen = vulkan_zig.artifact("vulkan-zig-generator");
-    const vk_generate_cmd = b.addRunArtifact(vk_gen);
-    vk_generate_cmd.addArg(b.pathFromRoot("deps/vulkan-zig/vk.xml"));
-    const vulkan_module = vk_generate_cmd.addOutputFileArg("vk.zig");
-
     const mod = b.addModule("eng", .{
         .link_libc = true,
-        .imports = &.{
-            .{ .name = "vulkan", .module = b.createModule(.{ .root_source_file = vulkan_module }) },
-        },
         .root_source_file = b.path("src/root.zig"),
         .target = target,
     });
@@ -25,15 +16,16 @@ pub fn build(b: *std.Build) void {
     mod.addIncludePath(b.path("deps/SDL/include"));
     mod.addIncludePath(b.path("deps/SDL_image/include"));
 
+    mod.linkSystemLibrary("vulkan", .{});
+
     const exe = b.addExecutable(.{
-        .name = "zig_vulkan",
+        .name = "app",
         .root_module = b.createModule(.{
             .root_source_file = b.path("src/main.zig"),
             .target = target,
             .optimize = optimize,
             .imports = &.{
-                .{ .name = "zig_vulkan", .module = mod },
-                .{ .name = "vulkan", .module = b.createModule(.{ .root_source_file = vulkan_module }) },
+                .{ .name = "eng", .module = mod },
             },
         }),
     });

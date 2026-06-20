@@ -1,94 +1,94 @@
 const std = @import("std");
-const c = @import("c");
-
-const vk = @import("vulkan");
 
 const eng = @import("eng.zig");
 
-const BaseWrapper = vk.BaseWrapper;
-const InstanceWrapper = vk.InstanceWrapper;
-const DeviceWrapper = vk.DeviceWrapper;
-
 const candidate = struct {
-    pdev: vk.PhysicalDevice,
-    props: vk.PhysicalDeviceProperties,
+    pdev: eng.c.VkPhysicalDevice,
+    props: eng.c.VkPhysicalDeviceProperties,
     queues: struct {
         graphics_family: u32,
         present_family: u32,
     },
 };
-pub fn init(window: *eng.sdl3.SDL_Window, allocator: std.mem.Allocator) !void {
+
+pub fn init(window: *eng.c.SDL_Window, allocator: std.mem.Allocator) !void {
     eng.print_warning("VULKAN", "Trying to initialize vulkan...", .{});
-    //APPLICATION INFO CREATION
-    const proc_addr = eng.sdl3.vulkanGetVkGetInstanceProcAddr() orelse return error.VulkanLoaderNotFound;
-    const loader: vk.PfnGetInstanceProcAddr = @ptrCast(proc_addr);
-    const vkb = BaseWrapper.load(loader);
-    const app_info: vk.ApplicationInfo = .{
-        .p_application_name = eng.app_name,
-        .application_version = eng.app_version,
-        .p_engine_name = eng.app_name,
-        .engine_version = 0,
-        .api_version = @bitCast(vk.makeApiVersion(0, 1, 3, 0)),
+
+    const app_info: eng.c.VkApplicationInfo = .{
+        .sType = eng.c.VK_STRUCTURE_TYPE_APPLICATION_INFO,
+        .pNext = null,
+        .pApplicationName = eng.app_name,
+        .applicationVersion = @as(u32, @bitCast(eng.app_version)),
+        .pEngineName = eng.app_name,
+        .engineVersion = 0,
+        .apiVersion = eng.c.VK_API_VERSION_1_3,
     };
 
     var ext_count: u32 = 0;
-    const extensions = eng.sdl3.vulkanGetInstanceExtensions(&ext_count);
+    const extensions = eng.c.SDL_Vulkan_GetInstanceExtensions(&ext_count);
     if (ext_count == 0) {
-        eng.print_warning("SDL3", "Zsdl3 found 0 extensions for vulkan", .{});
+        eng.print_warning("SDL3", "SDL found 0 extensions for vulkan", .{});
     } else {
-        if (extensions) |exts| {
-            for (exts[0..ext_count]) |ext| {
+        if (extensions != null) {
+            for (extensions[0..ext_count]) |ext| {
                 eng.print_success("SDL3", "Extension: {s}", .{ext});
             }
         }
     }
 
-    const create_info: vk.InstanceCreateInfo = .{
-        .flags = .{},
-        .p_application_info = &app_info,
-        .enabled_layer_count = 0,
-        .pp_enabled_layer_names = undefined,
-        .enabled_extension_count = ext_count,
-        .pp_enabled_extension_names = extensions,
+    const create_info: eng.c.VkInstanceCreateInfo = .{
+        .sType = eng.c.VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
+        .pNext = null,
+        .flags = 0,
+        .pApplicationInfo = &app_info,
+        .enabledLayerCount = 0,
+        .ppEnabledLayerNames = null,
+        .enabledExtensionCount = ext_count,
+        .ppEnabledExtensionNames = extensions,
     };
 
-    //PHYSICAL DEVICE SELECTION
-    const instance = try vkb.createInstance(&create_info, null);
-    const vki = InstanceWrapper.load(instance, loader);
+    var instance: eng.c.VkInstance = null;
+    if (eng.c.vkCreateInstance(&create_info, null, &instance) != eng.c.VK_SUCCESS) {
+        return error.InstanceCreationFailed;
+    }
+
+    var pdev_count: u32 = 0;
+    _ = eng.c.vkEnumeratePhysicalDevices(instance, &pdev_count, null);
+    const physical_devices = try allocator.alloc(eng.c.VkPhysicalDevice, pdev_count);
+    defer allocator.free(physical_devices);
+    _ = eng.c.vkEnumeratePhysicalDevices(instance, &pdev_count, physical_devices.ptr);
 
     var selected: ?candidate = null;
-    const physical_devices = try vki.enumeratePhysicalDevicesAlloc(instance, allocator);
-    defer allocator.free(physical_devices);
     for (physical_devices) |device| {
-        const props = vki.getPhysicalDeviceProperties(device);
-        eng.print_success("VULKAN", "Physical device: {s}", .{props.device_name});
-        if (props.device_type == .discrete_gpu) {
+        var props: eng.c.VkPhysicalDeviceProperties = undefined;
+        eng.c.vkGetPhysicalDeviceProperties(device, &props);
+        eng.print_success("VULKAN", "Physical device: {s}", .{std.mem.sliceTo(&props.deviceName, 0)});
+        if (props.deviceType == eng.c.VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
             selected = .{ .pdev = device, .props = props, .queues = undefined };
         }
     }
+
     if (selected) |dev| {
-        eng.print_success("VULKAN", "Selected: {s}", .{dev.props.device_name});
+        eng.print_success("VULKAN", "Selected: {s}", .{std.mem.sliceTo(&dev.props.deviceName, 0)});
     } else {
         eng.print_error("VULKAN", "No suitable physical device found", .{});
         return error.NoSuitableDevice;
     }
 
-    //SURFACE CREATION
-    var surface: ?*anyopaque = null;
-    if (!eng.sdl3.vulkanCreateSurface(window, @ptrFromInt(@intFromEnum(instance)), null, &surface)) {
-        eng.print_error("VULKAN", "Failed to create VK surface", .{});
+    var surface: eng.c.VkSurfaceKHR = null;
+    if (!eng.c.SDL_Vulkan_CreateSurface(window, instance, null, &surface)) {
+        eng.print_error("VULKAN", "Failed to create surface", .{});
         return error.SurfaceCreationFailed;
-    } else eng.print_success("VULKAN", "Vulkan surface was created", .{});
+    } else {
+        eng.print_success("VULKAN", "Vulkan surface was created", .{});
+    }
 
-    //QUEUE FAMILIES
-    const vkd = try allocator.create(DeviceWrapper);
-    const queue_families = try vki.getPhysicalDeviceQueueFamilyPropertiesAlloc(selected.?.pdev, allocator);
+    var queue_family_count: u32 = 0;
+    eng.c.vkGetPhysicalDeviceQueueFamilyProperties(selected.?.pdev, &queue_family_count, null);
+    const queue_families = try allocator.alloc(eng.c.VkQueueFamilyProperties, queue_family_count);
     defer allocator.free(queue_families);
-    _ = vkd;
-    // const presentation_queue;
-    //device.getPhysicalDeviceQueueFamilyProperties();
 }
+
 pub fn renderer() !void {
-    eng.print_success("VULKAN", "Module loaded, SDL_WINDOW_VULKAN flag: {d}\n", .{eng.sdl3.SDL_WINDOW_VULKAN});
-    _ = vk;
+    eng.print_success("VULKAN", "Module loaded, SDL_WINDOW_VULKAN flag: {d}\n", .{eng.c.SDL_WINDOW_VULKAN});
 }
