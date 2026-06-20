@@ -2,7 +2,6 @@ const std = @import("std");
 const c = @import("c");
 
 const vk = @import("vulkan");
-const zsdl3 = @import("zsdl3");
 
 const eng = @import("eng.zig");
 
@@ -18,10 +17,10 @@ const candidate = struct {
         present_family: u32,
     },
 };
-pub fn init(window: *zsdl3.SDL_Window, allocator: std.mem.Allocator) !void {
+pub fn init(window: *eng.sdl3.SDL_Window, allocator: std.mem.Allocator) !void {
     eng.print_warning("VULKAN", "Trying to initialize vulkan...", .{});
     //APPLICATION INFO CREATION
-    const proc_addr = zsdl3.vulkanGetVkGetInstanceProcAddr() orelse return error.VulkanLoaderNotFound;
+    const proc_addr = eng.sdl3.vulkanGetVkGetInstanceProcAddr() orelse return error.VulkanLoaderNotFound;
     const loader: vk.PfnGetInstanceProcAddr = @ptrCast(proc_addr);
     const vkb = BaseWrapper.load(loader);
     const app_info: vk.ApplicationInfo = .{
@@ -33,7 +32,7 @@ pub fn init(window: *zsdl3.SDL_Window, allocator: std.mem.Allocator) !void {
     };
 
     var ext_count: u32 = 0;
-    const extensions = zsdl3.vulkanGetInstanceExtensions(&ext_count);
+    const extensions = eng.sdl3.vulkanGetInstanceExtensions(&ext_count);
     if (ext_count == 0) {
         eng.print_warning("SDL3", "Zsdl3 found 0 extensions for vulkan", .{});
     } else {
@@ -76,7 +75,7 @@ pub fn init(window: *zsdl3.SDL_Window, allocator: std.mem.Allocator) !void {
 
     //SURFACE CREATION
     var surface: ?*anyopaque = null;
-    if (!zsdl3.vulkanCreateSurface(window, @ptrFromInt(@intFromEnum(instance)), null, &surface)) {
+    if (!eng.sdl3.vulkanCreateSurface(window, @ptrFromInt(@intFromEnum(instance)), null, &surface)) {
         eng.print_error("VULKAN", "Failed to create VK surface", .{});
         return error.SurfaceCreationFailed;
     } else eng.print_success("VULKAN", "Vulkan surface was created", .{});

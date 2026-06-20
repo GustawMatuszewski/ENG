@@ -10,10 +10,9 @@ pub fn build(b: *std.Build) void {
     vk_generate_cmd.addArg(b.pathFromRoot("deps/vulkan-zig/vk.xml"));
     const vulkan_module = vk_generate_cmd.addOutputFileArg("vk.zig");
 
-    const mod = b.addModule("zig_vulkan", .{
+    const mod = b.addModule("eng", .{
         .link_libc = true,
         .imports = &.{
-            .{ .name = "zsdl3", .module = b.dependency("zsdl3", .{}).module("zsdl3") },
             .{ .name = "vulkan", .module = b.createModule(.{ .root_source_file = vulkan_module }) },
         },
         .root_source_file = b.path("src/root.zig"),
@@ -34,7 +33,6 @@ pub fn build(b: *std.Build) void {
             .optimize = optimize,
             .imports = &.{
                 .{ .name = "zig_vulkan", .module = mod },
-                .{ .name = "zsdl3", .module = b.dependency("zsdl3", .{}).module("zsdl3") },
                 .{ .name = "vulkan", .module = b.createModule(.{ .root_source_file = vulkan_module }) },
             },
         }),
