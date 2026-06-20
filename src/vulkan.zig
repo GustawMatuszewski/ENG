@@ -89,6 +89,6 @@ pub fn init(window: *eng.sdl3.SDL_Window, allocator: std.mem.Allocator) !void {
     //device.getPhysicalDeviceQueueFamilyProperties();
 }
 pub fn renderer() !void {
-    eng.print_success("VULKAN", "Module loaded, SDL_WINDOW_VULKAN flag: {d}\n", .{zsdl3.SDL_WINDOW_VULKAN});
+    eng.print_success("VULKAN", "Module loaded, SDL_WINDOW_VULKAN flag: {d}\n", .{eng.sdl3.SDL_WINDOW_VULKAN});
     _ = vk;
 }
