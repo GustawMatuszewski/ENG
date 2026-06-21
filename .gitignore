@@ -5,3 +5,4 @@ deps/SDL/out/
 deps/SDL_image/build/
 deps/SDL_image/out/zig-out/
 .zig-cache/
+src/root.zig
