@@ -4,9 +4,3 @@
 [submodule "deps/SDL_image"]
 	path = deps/SDL_image
 	url = https://github.com/libsdl-org/SDL_image.git
-[submodule "deps/zsdl3"]
-	path = deps/zsdl3
-	url = https://github.com/felixuxx/zsdl3.git
-[submodule "deps/vulkan-zig"]
-	path = deps/vulkan-zig
-	url = https://github.com/Snektron/vulkan-zig.git
