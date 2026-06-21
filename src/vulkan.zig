@@ -8,6 +8,7 @@ const candidate = struct {
     queues: struct {
         graphics_family: u32,
         present_family: u32,
+        compute_family: u32,
     },
 };
 
@@ -31,7 +32,7 @@ pub fn init(window: *eng.c.SDL_Window, allocator: std.mem.Allocator) !void {
     } else {
         if (extensions != null) {
             for (extensions[0..ext_count]) |ext| {
-                eng.print_success("SDL3", "Extension: {s}", .{ext});
+                eng.print_info("SDL3", "Extension: {s}", .{ext});
             }
         }
     }
@@ -62,7 +63,7 @@ pub fn init(window: *eng.c.SDL_Window, allocator: std.mem.Allocator) !void {
     for (physical_devices) |device| {
         var props: eng.c.VkPhysicalDeviceProperties = undefined;
         eng.c.vkGetPhysicalDeviceProperties(device, &props);
-        eng.print_success("VULKAN", "Physical device: {s}", .{std.mem.sliceTo(&props.deviceName, 0)});
+        eng.print_info("VULKAN", "Physical device: {s}", .{std.mem.sliceTo(&props.deviceName, 0)});
         if (props.deviceType == eng.c.VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
             selected = .{ .pdev = device, .props = props, .queues = undefined };
         }
@@ -86,6 +87,8 @@ pub fn init(window: *eng.c.SDL_Window, allocator: std.mem.Allocator) !void {
     var queue_family_count: u32 = 0;
     eng.c.vkGetPhysicalDeviceQueueFamilyProperties(selected.?.pdev, &queue_family_count, null);
     const queue_families = try allocator.alloc(eng.c.VkQueueFamilyProperties, queue_family_count);
+
+    eng.c.vkGetPhysicalDeviceQueueFamilyProperties(selected.?.pdev, &queue_family_count, queue_families.ptr);
     defer allocator.free(queue_families);
 }
 
