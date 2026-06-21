@@ -1,7 +1,7 @@
-# zigVulkan
+# ENG
 A Zig + SDL3 + Vulkan project.
 ## Prerequisites
-- Zig 0.15.2+
+- Zig 0.16.0
 - CMake 3.16+
 - Vulkan SDK
 - A C compiler (gcc or clang)
