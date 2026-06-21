@@ -1,7 +1,7 @@
 const std = @import("std");
 
 const app = @import("app.zig");
-const eng = @import("eng.zig");
+const eng = @import("eng");
 pub fn main() !void {
     eng.print_warning("APP", "ENG is starting...", .{});
 

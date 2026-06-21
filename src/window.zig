@@ -1,6 +1,6 @@
 const std = @import("std");
 
-const eng = @import("eng.zig");
+const eng = @import("eng");
 
 pub fn init() !void {
     if (!eng.c.SDL_Init(eng.c.SDL_INIT_VIDEO | eng.c.SDL_INIT_AUDIO)) {

@@ -1,6 +1,6 @@
 const std = @import("std");
 
-const eng = @import("eng.zig");
+const eng = @import("eng");
 
 const candidate = struct {
     pdev: eng.c.VkPhysicalDevice,

@@ -6,13 +6,14 @@ pub fn build(b: *std.Build) void {
 
     const mod = b.addModule("eng", .{
         .link_libc = true,
-        .root_source_file = b.path("src/root.zig"),
+        .root_source_file = b.path("src/eng.zig"),
         .target = target,
     });
 
     mod.linkSystemLibrary("SDL3", .{});
     mod.addLibraryPath(b.path("deps/SDL/out/lib64"));
     mod.addLibraryPath(b.path("deps/SDL_image/out/lib64"));
+
     mod.addIncludePath(b.path("deps/SDL/include"));
     mod.addIncludePath(b.path("deps/SDL_image/include"));
 

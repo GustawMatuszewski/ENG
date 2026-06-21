@@ -1,6 +1,6 @@
 const std = @import("std");
 
-const eng = @import("eng.zig");
+const eng = @import("eng");
 const window = @import("window.zig");
 const vulkan = @import("vulkan.zig");
 
