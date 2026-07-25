@@ -1,8 +1,20 @@
 .zig-cache/
 zig-out/
+
+# SDL generated output
 deps/SDL/build/
 deps/SDL/out/
 deps/SDL_image/build/
-deps/SDL_image/out/zig-out/
-.zig-cache/
-src/root.zig
+deps/SDL_image/out/
+
+# Common generated files
+build/
+compile_commands.json
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.dylib
+*.exe
+*.log
