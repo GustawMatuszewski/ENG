@@ -1,7 +1,7 @@
 .{
     .name = .eng,
     .version = "0.1.0",
-    .minimum_zig_version = "0.15.2",
+    .minimum_zig_version = "0.16.0",
     .fingerprint = 0x99f5620b42e3a61e,
 
     .dependencies = .{},

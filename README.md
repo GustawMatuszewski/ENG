@@ -1,5 +1,8 @@
 # ENG
 A Zig + SDL3 + Vulkan project.
+
+This project targets Zig `0.16.0`. The repository includes a `.zigversion` file and VS Code settings so the official Zig extension can default to Zig `0.16.0` and ZLS automatically.
+
 ## Prerequisites
 - Zig 0.16.0
 - Vulkan SDK
