@@ -13,8 +13,8 @@ pub fn run() !void {
     const mainWindow = try window.create("nygerion", 800, 800);
     defer eng.c.SDL_DestroyWindow(mainWindow);
 
-    try vulkan.init(mainWindow, allocator);
-    try vulkan.renderer();
+    const renderer = try vulkan.init(mainWindow, allocator);
+    _ = renderer;
 
     var running = true;
     while (running) {
