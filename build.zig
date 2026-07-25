@@ -11,11 +11,6 @@ pub fn build(b: *std.Build) void {
     });
 
     mod.linkSystemLibrary("SDL3", .{});
-    mod.addLibraryPath(b.path("deps/SDL/out/lib64"));
-    mod.addLibraryPath(b.path("deps/SDL_image/out/lib64"));
-
-    mod.addIncludePath(b.path("deps/SDL/include"));
-    mod.addIncludePath(b.path("deps/SDL_image/include"));
 
     mod.linkSystemLibrary("vulkan", .{});
 
