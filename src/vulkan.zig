@@ -68,6 +68,11 @@ pub fn init(window: *eng.c.SDL_Window, allocator: std.mem.Allocator) !VulkanRend
     renderer.physical_device = physical_device.device;
     renderer.indices = physical_device.indices;
 
+    renderer.device = try createLogicalDevice(
+        renderer.physical_device,
+        renderer.indices,
+    );
+
     return renderer;
 }
 
@@ -200,4 +205,68 @@ fn inspectQueueFamilies(device: eng.c.VkPhysicalDevice, surface: eng.c.VkSurface
         }
     }
     return family_indices;
+}
+
+fn createLogicalDevice(physical_device: eng.c.VkPhysicalDevice, queue_indices: QueueFamilyIndices) !eng.c.VkDevice {
+    const queue_priority: f32 = 1.0;
+    const device_extensions = [_][*:0]const u8{
+        eng.c.VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+    };
+
+    const queue_create_infos = [_]eng.c.VkDeviceQueueCreateInfo{ //TEMP SOLUTION rtx5060 laptop only !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // Request one queue from graphics family 0.
+        .{
+            .sType = eng.c.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+            .pNext = null,
+            .flags = 0,
+            .queueFamilyIndex = queue_indices.graphics.?,
+            .queueCount = 1,
+            .pQueuePriorities = &queue_priority,
+        },
+
+        // Request one queue from compute family 2.
+        .{
+            .sType = eng.c.VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+            .pNext = null,
+            .flags = 0,
+            .queueFamilyIndex = queue_indices.compute.?,
+            .queueCount = 1,
+            .pQueuePriorities = &queue_priority,
+        },
+    };
+
+    const device_create_info: eng.c.VkDeviceCreateInfo = .{
+        .sType = eng.c.VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+        .pNext = null,
+        .flags = 0,
+
+        .queueCreateInfoCount = @intCast(queue_create_infos.len),
+        .pQueueCreateInfos = &queue_create_infos,
+
+        .enabledLayerCount = 0,
+        .ppEnabledLayerNames = null,
+
+        .enabledExtensionCount = @intCast(device_extensions.len),
+        .ppEnabledExtensionNames = &device_extensions,
+
+        .pEnabledFeatures = null,
+    };
+
+    var device: eng.c.VkDevice = null;
+
+    const result = eng.c.vkCreateDevice(
+        physical_device,
+        &device_create_info,
+        null,
+        &device,
+    );
+
+    if (result != eng.c.VK_SUCCESS) {
+        eng.print_error("VULKAN", "Failed to create logical device", .{});
+        return error.LogicalDeviceCreationFailed;
+    }
+
+    eng.print_success("VULKAN", "Logical device created", .{});
+
+    return device;
 }
